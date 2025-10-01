@@ -20,11 +20,16 @@ func main() {
 	r.HandleFunc("/api/login", LoginHandler).Methods("POST")
 
 	// Configuración de CORS para permitir peticiones desde tu frontend en React
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"}, // Cambia esto en producción
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization"},
-	})
+// EN backend/main.go
+
+c := cors.New(cors.Options{
+    AllowedOrigins: []string{
+        "http://localhost:3000", // La dejas para desarrollo local
+        "https://chaotravelapp.com", // <- AÑADE TU URL DE NETLIFY AQUÍ
+    },
+    AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowedHeaders: []string{"Content-Type", "Authorization"},
+})
 
 	handler := c.Handler(r)
 
