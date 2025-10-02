@@ -12,13 +12,15 @@ func main() {
 	// Inicializa la conexión con la base de datos
 	InitDB()
 
-	// Crea un nuevo enrutador
 	r := mux.NewRouter()
 
-	// Define los endpoints de la API
+	// Rutas públicas
 	r.HandleFunc("/api/register", RegisterHandler).Methods("POST")
 	r.HandleFunc("/api/login", LoginHandler).Methods("POST")
 
+	// NUEVA RUTA PROTEGIDA
+	// Usamos .Handle() en lugar de .HandleFunc() para poder envolverlo en el middleware
+	r.Handle("/api/profile", AuthMiddleware(http.HandlerFunc(ProfileHandler))).Methods("GET")
 	// Configuración de CORS para permitir peticiones desde tu frontend en React
 // EN backend/main.go
 

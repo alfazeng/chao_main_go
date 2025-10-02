@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-
+	
+	"github.com/google/uuid" 
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -89,4 +90,35 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+
+// NUEVA FUNCIÓN: ProfileHandler
+func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	// Obtenemos el userID del contexto que el middleware añadió
+	userID, ok := r.Context().Value("userID").(uuid.UUID)
+	if !ok {
+		http.Error(w, "Could not retrieve user ID", http.StatusInternalServerError)
+		return
+	}
+
+	var user User
+	// Buscamos al usuario en la BD usando el ID del token
+	err := db.QueryRow(`
+		SELECT id, full_name, email, country, phone, created_at
+		FROM users WHERE id = $1`, userID).Scan(
+		&user.ID, &user.FullName, &user.Email, &user.Country, &user.Phone, &user.CreatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }
